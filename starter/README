@@ -1,0 +1,4 @@
+If go build fails then run this command:
+
+git config --global --add url."git@gitlab.thetasolutionsllc.com:".insteadOf "https://gitlab.thetasolutionsllc.com/"
+
