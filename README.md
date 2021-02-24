@@ -7,4 +7,6 @@ The iGenDecModel repository contains the go language code for two of the three c
 The resulting MEV are suitable for application to expected progeny differences (EPD).
 
 ## The web frontend
-A third component of iGenDec is the web interaface application maintained in a separate repository, https://github.com/blgolden/igendec.
+A third component of iGenDec is the web interaface application maintained in a separate repository, https://github.com/blgolden/igendec. 
+
+View the frontend's README.md for instructions on a complete installation and information on the hjson files.
