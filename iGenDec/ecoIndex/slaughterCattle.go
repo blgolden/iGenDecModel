@@ -24,8 +24,8 @@ package ecoIndex
 import (
 	"fmt"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
+        "github.com/blgolden/iGenDecModel/iGenDec/animal"
+        "github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"math"
 	"math/rand"

@@ -22,21 +22,14 @@ SOFTWARE.
 package main
 
 import (
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
 	//"errors"
 	"fmt"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/ecoIndex"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/varStuff"
+	"github.com/blgolden/iGenDecModel/iGenDec/ecoIndex"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/varStuff"
 
-	//"io/ioutil"
-	//"math"
-	//"math/rand"
-	//"os"
-	//"time"
-	//"github.com/hjson/hjson-go"
-	//"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/gonum.org/v1/gonum/mat"
 	"strconv"
 	"strings"
 )

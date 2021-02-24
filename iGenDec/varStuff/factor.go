@@ -24,13 +24,13 @@ package varStuff
 import (
 	"fmt"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
 
 	"errors"
 	"math"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/ecoIndex"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/ecoIndex"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"gonum.org/v1/gonum/mat"
 )

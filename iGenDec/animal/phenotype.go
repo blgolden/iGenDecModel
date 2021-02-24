@@ -26,7 +26,7 @@ import (
 	//"os"
 	"strings"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 )
 
 var ResidualStayStdDev float64

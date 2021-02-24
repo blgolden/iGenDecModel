@@ -1,4 +1,4 @@
-module gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec
+module github.com/blgolden/iGenDecModel/iGenDec
 
 go 1.15
 

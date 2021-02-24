@@ -27,8 +27,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/ecoIndex"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/ecoIndex"
 
 	"log"
 	"math/rand"
@@ -38,8 +38,8 @@ import (
 
 	//	"time"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/varStuff"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/varStuff"
 
 	"gonum.org/v1/gonum/mat"
 

@@ -26,10 +26,10 @@ package main
 import (
 	"fmt"
 	//"os"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/ecoIndex"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/varStuff"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/ecoIndex"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/varStuff"
 )
 
 var version = "alpha0.1.7a"

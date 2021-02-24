@@ -27,7 +27,7 @@ import (
 	//"math"
 	"strconv"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"gonum.org/v1/gonum/mat"
 	// "gonum.org/v1/gonum/stat/distuv"

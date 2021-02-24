@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"math"
 
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/animal"
-	"gitlab.thetasolutionsllc.com/USDAProject/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"gonum.org/v1/gonum/mat"
 )
