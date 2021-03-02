@@ -1,4 +1,6 @@
 // slaughterCattle
+package ecoIndex
+
 /*
 Copyright 2021 Bruce Golden and Matt Spangler
 
@@ -19,13 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package ecoIndex
 
 import (
 	"fmt"
 
-        "github.com/blgolden/iGenDecModel/iGenDec/animal"
-        "github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"math"
 	"math/rand"
@@ -116,11 +117,19 @@ func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 		progPremium = gridPrice[pValue]
 	}
 
+	if yg > 5 {
+		yg = 5
+	} else if yg < 1 {
+		yg = 1
+	}
+
 	var gridValue GridValue_t
 	gridValue.QualityGrade = qg
 	gridValue.YieldGrade = yg
 
-	//fmt.Println("LOC 1", calf.Id, calf.CarcassWeight, qg, yg, pricePerPound[tsmm], gridPrice[gridValue], progPremium, calf.BackFatThickness, calf.RibEyArea, calf.MarblingScore)
+	if animal.CarcassPhenotypeFile != nil {
+		fmt.Fprintln(animal.CarcassPhenotypeFile, calf.Id, calf.YearBorn, calf.CarcassWeight, qg, yg, pricePerPound[tsmm], gridPrice[gridValue], progPremium, calf.BackFatThickness, calf.RibEyArea, calf.MarblingScore)
+	}
 	return weight * (pricePerPound[tsmm] + gridPrice[gridValue] + progPremium)
 }
 

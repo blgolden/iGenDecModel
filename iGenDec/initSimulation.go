@@ -1,4 +1,5 @@
 // initSimulation
+package main
 /*
 Copyright 2021 Bruce Golden and Matt Spangler
 
@@ -19,7 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-package main
 
 import (
 	"errors"
@@ -653,6 +653,11 @@ func openOutputFiles() {
 	c = param["CDPhenotypeFile"]
 	if c != nil {
 		animal.CDPhenotypeFilePointer, _ = os.Create(string(c.(string)))
+	}
+	c = param["CarcassPhenotypeFile"]
+	if c != nil {
+		animal.CarcassPhenotypeFile, _ = os.Create(string(c.(string)))
+		fmt.Fprintln(animal.CarcassPhenotypeFile, "Id YearBorn CarcassWeight QualityGrade YieldGrade pricePerPound gridPrice progPremium BackFatThickness RibEyArea calf.MarblingScore")
 	}
 }
 

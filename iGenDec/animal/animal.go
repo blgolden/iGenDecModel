@@ -1,4 +1,6 @@
 // herd project herd.go
+//
+// Defines an animal and its characteristics
 /*
 Copyright 2021 Bruce Golden and Matt Spangler
 
@@ -19,8 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-//
-// Defines an animal and its characteristics
 package animal
 
 import (
@@ -167,6 +167,7 @@ var PhenotypeFilePointer *os.File
 var StayPhenotypeFilePointer *os.File // For debugging cow conception routines
 var HPPhenotypeFilePointer *os.File
 var CDPhenotypeFilePointer *os.File
+var CarcassPhenotypeFile *os.File // For optional write of slaughter cattle phenotypes QG,YQ, etc.
 
 //var HeiferPregnancyDistribution distuv.Normal
 
