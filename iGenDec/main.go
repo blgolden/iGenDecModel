@@ -32,7 +32,7 @@ import (
 	"github.com/blgolden/iGenDecModel/iGenDec/varStuff"
 )
 
-var version = "beta0.0.2"
+var version = "beta0.0.3"
 
 var records []animal.Animal
 var herdSize int
