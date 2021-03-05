@@ -107,7 +107,7 @@ func bumpComponent(trait animal.BumpComponent_t) {
 		for _, b := range h.Bulls {
 			bv := b.BreedingValue.AtVec(idx) + trait.Value
 			animal.Records[b.Id-1].BreedingValue.SetVec(idx, bv)
-			for t := range notInIndexList {
+			for _, t := range notInIndexList {
 				tVar := varStuff.VcMatrix["genetic"].At(idx, idx)
 				tCov := varStuff.VcMatrix["genetic"].At(idx, t)
 				bv := b.BreedingValue.AtVec(t) + trait.Value*tCov/tVar
