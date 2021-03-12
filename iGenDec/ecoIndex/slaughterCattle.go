@@ -56,6 +56,21 @@ type slaughtercattleGrossCostsByYear_t struct {
 var slaughtercattleGrossRevenueByYear map[int]slaughtercattleGrossRevenueByYear_t
 var slaughtercattleGrossCostsByYear map[int]slaughtercattleGrossCostsByYear_t
 
+// Return the price per lb type for a given calf
+func getPricePerPound(wt float64, sex string, trait string) float64 {
+
+	for _, c := range PriceTable {
+		//fmt.Println("LOC_1", c, wt, sex, trait)
+		if sex == c.Sex && trait == c.Trait && wt >= c.MinWt && wt < c.MaxWt {
+			return c.PricePerPound
+		}
+	}
+
+	logger.LogWriterFatal("No price per pound found for " + sex + " " + trait)
+
+	return 0.0
+}
+
 // Calculate backgrounded animals total sale revenue
 func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 
@@ -75,11 +90,7 @@ func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 		max = 900
 	}
 
-	var tsmm TraitSexMinWtMaxWt_t
-	tsmm.MaxWt = max
-	tsmm.MinWt = min
-	tsmm.Sex = calf.Sex
-	tsmm.Trait = "SC"
+	pricePerPound := getPricePerPound(calf.CarcassWeight, calf.Sex, "SC")
 
 	//fmt.Println("LOC 1", salePrice, weight, tsmm)
 
@@ -128,9 +139,9 @@ func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 	gridValue.YieldGrade = yg
 
 	if animal.CarcassPhenotypeFile != nil {
-		fmt.Fprintln(animal.CarcassPhenotypeFile, calf.Id, calf.YearBorn, calf.CarcassWeight, qg, yg, pricePerPound[tsmm], gridPrice[gridValue], progPremium, calf.BackFatThickness, calf.RibEyArea, calf.MarblingScore)
+		fmt.Fprintln(animal.CarcassPhenotypeFile, calf.Id, calf.YearBorn, calf.CarcassWeight, qg, yg, pricePerPound, gridPrice[gridValue], progPremium, calf.BackFatThickness, calf.RibEyArea, calf.MarblingScore)
 	}
-	return weight * (pricePerPound[tsmm] + gridPrice[gridValue] + progPremium)
+	return weight * (pricePerPound + gridPrice[gridValue] + progPremium)
 }
 
 // Revenue from sale of fed cattle

@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"math"
 
-        "github.com/blgolden/iGenDecModel/iGenDec/animal"
-        "github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/animal"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -95,13 +95,15 @@ func weaningSaleRevenue(calf animal.Animal) (salePrice float64) {
 		}
 	}
 
-	var tsmm TraitSexMinWtMaxWt_t
-	tsmm.MaxWt = max
-	tsmm.MinWt = min
-	tsmm.Sex = calf.Sex
-	tsmm.Trait = "WW"
-
-	salePrice = weight * pricePerPound[tsmm]
+	/*
+		var tsmm TraitSexMinWtMaxWt_t
+		tsmm.MaxWt = max
+		tsmm.MinWt = min
+		tsmm.Sex = calf.Sex
+		tsmm.Trait = "WW"
+	*/
+	pricePerPound := getPricePerPound(weight, calf.Sex, "WW")
+	salePrice = weight * pricePerPound
 
 	return salePrice
 }
@@ -323,15 +325,17 @@ func cullSale(nYears int) float64 {
 
 	for y := StartYearOfNetReturns; y <= nYears; y++ {
 
-		var tsmm TraitSexMinWtMaxWt_t
-		tsmm.MaxWt = 9999.0
-		tsmm.MinWt = 0.0
-		tsmm.Sex = animal.Cow
-		tsmm.Trait = "MW"
-
+		/*
+			var tsmm TraitSexMinWtMaxWt_t
+			tsmm.MaxWt = 9999.0
+			tsmm.MinWt = 0.0
+			tsmm.Sex = animal.Cow
+			tsmm.Trait = "MW"
+		*/
+		pricePerPound := getPricePerPound(1000.0, animal.Cow, "MW") // 1000 just to get the number.  Don't need actual
 		c := cullCowGrosRevenueByYear[y]
 
-		c.CowRevenue = animal.WtCullCows[y].CumWt * pricePerPound[tsmm]
+		c.CowRevenue = animal.WtCullCows[y].CumWt * pricePerPound
 		c.nCowsOpen = animal.WtCullCows[y].NheadOpen
 		c.nCowsOld = animal.WtCullCows[y].NheadOld
 		period := float64(y - StartYearOfNetReturns)

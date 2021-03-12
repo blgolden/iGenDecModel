@@ -80,14 +80,15 @@ func backgroundingSaleRevenue(calf animal.Animal) (salePrice float64) {
 			min = 0.
 		}
 	}
-
-	var tsmm TraitSexMinWtMaxWt_t
-	tsmm.MaxWt = max
-	tsmm.MinWt = min
-	tsmm.Sex = calf.Sex
-	tsmm.Trait = "BG"
-
-	salePrice = weight * pricePerPound[tsmm]
+	/*
+		var tsmm TraitSexMinWtMaxWt_t
+		tsmm.MaxWt = max
+		tsmm.MinWt = min
+		tsmm.Sex = calf.Sex
+		tsmm.Trait = "BG"
+	*/
+	pricePerPound := getPricePerPound(weight, calf.Sex, "BG")
+	salePrice = weight * pricePerPound
 
 	//fmt.Println("LOC 1", weight, pricePerPound[tsmm], min, max, tsmm)
 	return salePrice

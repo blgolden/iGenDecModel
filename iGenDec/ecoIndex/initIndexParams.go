@@ -31,7 +31,7 @@ import (
 	hjson "github.com/hjson/hjson-go"
 
 	"github.com/blgolden/iGenDecModel/iGenDec/animal"
-        "github.com/blgolden/iGenDecModel/iGenDec/logger"
+	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -42,7 +42,6 @@ var IndexTerminal bool
 // setup the map of the array of json name:value pairs - notice "interface{}"
 var ParamIndex map[string]interface{}
 
-var pricePerPound map[TraitSexMinWtMaxWt_t]float64
 var gridPrice map[GridValue_t]float64 // Premiums for grid prices
 var StartYearOfNetReturns int
 var DiscountRate float64
@@ -54,11 +53,14 @@ var InProgramProportion float64 // proportion of calves that initially may quali
 var NetReturns float64
 
 type TraitSexMinWtMaxWt_t struct {
-	Trait string  // Same as traits in master hjson - e.g., WW is weaning weight
-	Sex   string  // Sex S=steer and H=heifer calf
-	MinWt float64 //If the weight of the animals is >=
-	MaxWt float64 // and the weight of the animals is <
+	Trait         string  // Same as traits in master hjson - e.g., WW is weaning weight
+	Sex           string  // Sex S=steer and H=heifer calf
+	MinWt         float64 //If the weight of the animals is >=
+	MaxWt         float64 // and the weight of the animals is <
+	PricePerPound float64 // read as per cwt but converted to per lb
 }
+
+var PriceTable []TraitSexMinWtMaxWt_t
 
 type GridValue_t struct {
 	QualityGrade string // Prime, Program, Choice, Select,Standard
@@ -67,8 +69,6 @@ type GridValue_t struct {
 
 // Read the table of price per cwt.  Convert it to price per pound
 func readPricePerPound() {
-
-	pricePerPound = make(map[TraitSexMinWtMaxWt_t]float64)
 
 	carray, ok := ParamIndex["traitSexPricePerCwt"].([]interface{})
 	if !ok {
@@ -87,9 +87,10 @@ func readPricePerPound() {
 		tsmm.Sex = sex
 		tsmm.MinWt = min
 		tsmm.MaxWt = max
-
 		f, _ := strconv.ParseFloat(strings.TrimSpace(c[4]), 64)
-		pricePerPound[tsmm] = f / 100.0 // Convert from $/cwt to $/lb
+		tsmm.PricePerPound = f / 100.0 // Convert from $/cwt to $/lb
+
+		PriceTable = append(PriceTable, tsmm)
 	}
 
 }
