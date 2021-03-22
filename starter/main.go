@@ -23,14 +23,18 @@ package main
 
 import (
 	//"bytes"
+	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 
@@ -38,7 +42,7 @@ import (
 	"github.com/blgolden/iGenDecModel/iGenDec/ecoIndex"
 	"github.com/blgolden/iGenDecModel/iGenDec/logger"
 
-	//"strings"
+	"strings"
 	"time"
 
 	"github.com/hjson/hjson-go"
@@ -49,15 +53,15 @@ import (
 var debug bool = false // write a trait's sample values to Samples file for debugging.
 var debugTrait string = "base"
 
-var version string = "alpha0.2.0b"
+var version string = "beta0.0.1"
 var modelParam *string
 var indexParam *string
 var results []float64
 var numberSpawned int // Number of simulations to spawn per bump
 var seeds []int       // seeds used for each simulation
-
+var paramMaster map[string]interface{}
 var outputFile *string
-
+var databasePath *string
 var bmean, bstddev, indexErrorVar float64
 
 type mevTable_t struct {
@@ -67,6 +71,10 @@ type mevTable_t struct {
 	stddevNetReturns float64
 	mev              float64
 	stddevMeanNR     float64
+	correlation      float64 // between traits and index when a dataset is named.
+	emphasis         float64 // percent emphasis of this trait
+	geneticStdDev    float64 // genetic variance of this component
+	headerName       string  // If there's a datafile of EPDs this gets set to the header value
 }
 
 // Table of marginal economic values
@@ -161,6 +169,7 @@ func parseArgs() {
 	logger.Seed = flag.Int64("seed", 1234, "Random number generator seed (int64)")
 	isVersion := flag.Bool("version", false, "prints the version number of starter")
 	outputFile = flag.String("outputFile", "", "Optional jjson file of MEV")
+	databasePath = flag.String("database-path", "", "Path top level directory where the EPD data are stored")
 
 	flag.Parse()
 
@@ -191,7 +200,9 @@ func parseArgs() {
   -outputFile string
 	Optional hjson file of MEV
   -version
-	Print the version number and exit`
+	Print the version number and exit
+  -database-path string
+    Path to the top level directory where the EPD data are stored`
 
 			fmt.Printf("\n%s\n\n", syntax)
 			logger.LogWriterFatal("no parameter file name provided")
@@ -245,6 +256,262 @@ func loadIndexParam() {
 	}
 }
 
+// Load the master hjson so that the variance components can be used to calculate the percent emphasis
+func loadGeneticVariances() {
+	hjsonFile, err := os.Open(*modelParam)
+	if err != nil {
+		if *logger.OutputMode == "verbose" {
+			fmt.Println("Failed to open " + *modelParam)
+			fmt.Println(err)
+		} else {
+			logger.LogWriter("Failed to open parameter file " + *modelParam)
+			os.Exit(1)
+		}
+	}
+
+	defer hjsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(hjsonFile)
+
+	if er := hjson.Unmarshal(byteValue, &paramMaster); er != nil {
+		logger.LogWriterFatal("Failed to unmarshal general hjson")
+	}
+
+	carray, ok := paramMaster["Components"].([]interface{})
+	if !ok {
+		logger.LogWriterFatal("'Components:' key not found in general parameters hjson.")
+	}
+
+	// Get the traits and components in the order they appear in the VC matrix
+	for i := range carray {
+		animal.Components = append(animal.Components, strings.TrimSpace(carray[i].(string)))
+		v := strings.TrimSpace(carray[i].(string))
+		splt := strings.Split(v, ",")
+		var c animal.Component_t
+
+		c.TraitName = strings.TrimSpace(splt[0])
+		c.Component = strings.TrimSpace(splt[1]) // comp = D or M
+		animal.ComponentList = append(animal.ComponentList, c)
+	}
+
+	// Get the vc matrix
+	var Vc []float64
+
+	array, _ := paramMaster["genetic"].([]interface{})
+	for k := range array {
+		Vc = append(Vc, array[k].(float64))
+	}
+
+	n := int(math.Sqrt(float64(len(Vc))))
+	for l, c := range mevTable {
+		for j, g := range animal.ComponentList {
+			if c.trait == g.TraitName && c.component == g.Component {
+				c.geneticStdDev = math.Sqrt(Vc[Index2D(j, j, n)])
+				if c.trait == "STAY" {
+					c.geneticStdDev = c.geneticStdDev * 100.
+				}
+				mevTable[l] = c
+			}
+		}
+	}
+
+	// calculate the emphasis values
+	var sumE float64
+	for i := range mevTable {
+		sumE += math.Abs(mevTable[i].mev) * mevTable[i].geneticStdDev
+	}
+	for i := range mevTable {
+		mevTable[i].emphasis = math.Abs(mevTable[i].mev) * mevTable[i].geneticStdDev / sumE
+	}
+
+}
+
+var filenameXref = "comp_fn_pairs.hjson"
+
+func findFilename(databasePath string) (string, error) {
+	// Find the database filename
+	infos, err := ioutil.ReadDir(databasePath)
+	if err != nil {
+		return "", fmt.Errorf("reading database dir: %w", err)
+	}
+	var databaseFile string
+	for _, info := range infos {
+		if !info.IsDir() && filepath.Ext(info.Name()) == ".csv" {
+			if databaseFile != "" {
+				return databaseFile, fmt.Errorf("multiple csv files in directory")
+			}
+			databaseFile = info.Name()
+		}
+	}
+	if databaseFile == "" {
+		return databaseFile, fmt.Errorf("could not find a csv database")
+	}
+	return databaseFile, nil
+}
+
+// If there's a target database then calculate the correlations between the index
+// and the trait components
+func calculateCorrelations() {
+	database, ok := paramMaster["target-database"].(string)
+	if !ok {
+		return
+	}
+
+	if databasePath == nil {
+		if *logger.OutputMode == "verbose" {
+			fmt.Println("target-database specified but -database-path parameter not set")
+		}
+		logger.LogWriterFatal("target-database specified but -database-path parameter not set")
+	}
+	comppath := filepath.Join(*databasePath, database)
+	csvfilename, err := findFilename(comppath)
+	if err != nil {
+		logger.LogWriterFatal(err.Error())
+	}
+	compFile := filepath.Join(comppath, csvfilename)
+	csvFile, err := os.Open(compFile)
+	if err != nil {
+		if *logger.OutputMode == "verbose" {
+			fmt.Println("Failed to open " + compFile)
+			fmt.Println(err)
+		} else {
+			logger.LogWriter("Failed to open datafile " + compFile)
+			os.Exit(1)
+		}
+	}
+
+	defer csvFile.Close()
+
+	dataMap := CSVToMap(csvFile)
+	xref, _ := loadXref(comppath)
+
+	linkHeaderAndMevTable(xref)
+
+	// Calculate index values
+	var score []float64
+	var sumY, sumY2 float64
+	for _, c := range dataMap {
+		var s float64
+		for _, f := range mevTable {
+			if f.headerName != "" {
+				e, _ := strconv.ParseFloat(c[f.headerName], 64)
+				s += e * f.mev
+			}
+		}
+		score = append(score, s)
+		sumY += s
+		sumY2 += s * s
+	}
+
+	n := float64(len(score))
+	sqrtY := math.Sqrt(sumY2 - math.Pow(sumY, 2)/n)
+
+	for j, f := range mevTable {
+		if f.headerName != "" {
+
+			var sumX, sumX2, sumXY float64
+			for i, c := range dataMap {
+				e, _ := strconv.ParseFloat(c[f.headerName], 64)
+				sumX += e
+				sumX2 += e * e
+				sumXY += e * score[i]
+
+			}
+			sqrtX := math.Sqrt(sumX2 - math.Pow(sumX, 2)/n)
+
+			dividend := sumXY - ((sumX * sumY) / n)
+			divisor := sqrtX * sqrtY
+
+			mevTable[j].correlation = dividend / divisor
+		}
+	}
+
+	return
+}
+
+// Set the header values in the mevTable
+func linkHeaderAndMevTable(xref map[string]Field) {
+	for _, x := range xref {
+		for i, _ := range mevTable {
+			key := mevTable[i].trait + "," + mevTable[i].component
+			if x.Key == key {
+				mevTable[i].headerName = x.Header
+			}
+		}
+	}
+	return
+}
+
+// Field describes a field in the CSV file read in from the comp_fn_pair.hjson file
+type Field struct {
+	Key     string `json:"name"`
+	Header  string `json:"header"`
+	Comment string `json:"comment"`
+	Select  bool   `json:"select"`
+	idx     int
+}
+
+func loadXref(databasepath string) (map[string]Field, error) {
+
+	xref := make(map[string]Field)
+
+	data, err := ioutil.ReadFile(filepath.Join(databasepath, filenameXref))
+	if err != nil {
+		return xref, fmt.Errorf("reading database xref: %w", err)
+	}
+
+	// Map each field we're searching for using hjson
+	var m []interface{}
+	if err = hjson.Unmarshal(data, &m); err != nil {
+		return xref, fmt.Errorf("unmarshalling xref: %w", err)
+	}
+
+	// We can then remarshall/unmarshall the interface to automatically put the struct into our one
+	for idx, v := range m {
+		data, err = json.Marshal(v)
+		if err != nil {
+			return xref, fmt.Errorf("remarshalling field %d: %w", idx, err)
+		}
+		f := Field{}
+		if err = json.Unmarshal(data, &f); err != nil {
+			return xref, fmt.Errorf("unmarshalling field %d: %w", idx, err)
+		}
+		f.idx = idx
+		xref[f.Key] = f
+	}
+
+	return xref, nil
+}
+func Index2D(row int, col int, dim int) int {
+	return dim*col + row
+}
+
+// CSVToMap takes a reader and returns an array of dictionaries, using the header row as the keys
+func CSVToMap(reader io.Reader) []map[string]string {
+	r := csv.NewReader(reader)
+	rows := []map[string]string{}
+	var header []string
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		if header == nil {
+			header = record
+		} else {
+			dict := map[string]string{}
+			for i := range header {
+				dict[header[i]] = record[i]
+			}
+			rows = append(rows, dict)
+		}
+	}
+	return rows
+}
+
 // Bump each index component by 1 (STAY by .01) and construct the table of MEV
 func simulateIndexComponents() {
 
@@ -296,7 +563,7 @@ func publishIndex() {
 // write to stream
 func dumpMev() {
 	for _, co := range mevTable {
-		fmt.Printf("%s,%s,%f\n", co.trait, co.component, co.mev*2.0)	// Multiply by 2 to apply to EPD
+		fmt.Printf("%s,%s,%f\n", co.trait, co.component, co.mev*2.0) // Multiply by 2 to apply to EPD
 	}
 }
 
@@ -308,6 +575,10 @@ func main() {
 	initialize()
 
 	simulateIndexComponents()
+
+	loadGeneticVariances()
+
+	calculateCorrelations()
 
 	if *logger.OutputMode == "table" || *logger.OutputMode == "verbose" {
 		publishIndex()
@@ -328,7 +599,13 @@ func main() {
 			}
 			f.WriteString("{\n      trait: " + co.trait + "\n")
 			f.WriteString("      component: " + co.component + "\n")
-			s := fmt.Sprintf("%f", co.mev*2.0)	// For application to EPD, not EBV
+			e := fmt.Sprintf("%f", co.emphasis)
+			f.WriteString("      emphasis: " + e + "\n")
+			c := fmt.Sprintf("%f", co.correlation)
+			f.WriteString("      correlation: " + c + "\n")
+			g := fmt.Sprintf("%f", co.geneticStdDev)
+			f.WriteString("      geneticStdDev: " + g + "\n")
+			s := fmt.Sprintf("%f", co.mev*2.0) // For application to EPD, not EBV
 			f.WriteString("      mev: " + s + "\n   }")
 			f.WriteString("\n")
 		}
