@@ -601,6 +601,7 @@ func main() {
 			if co.trait == "CD" {
 				co.trait = "CE"
 				co.mev = co.mev * -1.0
+				co.correlation = co.correlation * -1.0
 			}
 			f.WriteString("{\n      trait: " + co.trait + "\n")
 			f.WriteString("      component: " + co.component + "\n")
