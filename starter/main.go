@@ -433,7 +433,12 @@ func calculateCorrelations() {
 func linkHeaderAndMevTable(xref map[string]Field) {
 	for _, x := range xref {
 		for i, _ := range mevTable {
-			key := mevTable[i].trait + "," + mevTable[i].component
+			var key string
+			if mevTable[i].trait == "CD" {
+				key = "CE," + mevTable[i].component
+			} else {
+				key = mevTable[i].trait + "," + mevTable[i].component
+			}
 			if x.Key == key {
 				mevTable[i].headerName = x.Header
 			}
