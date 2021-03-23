@@ -53,7 +53,7 @@ import (
 var debug bool = false // write a trait's sample values to Samples file for debugging.
 var debugTrait string = "base"
 
-var version string = "beta0.0.1"
+var version string = "beta0.0.3"
 var modelParam *string
 var indexParam *string
 var results []float64
@@ -353,7 +353,7 @@ func findFilename(databasePath string) (string, error) {
 // and the trait components
 func calculateCorrelations() {
 	database, ok := paramMaster["target-database"].(string)
-	if !ok {
+	if !ok || database == "" {
 		return
 	}
 
