@@ -59,16 +59,9 @@ func fatcattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 
 	weight := calf.HarvestWeight
 
-	/*
-		var tsmm TraitSexMinWtMaxWt_t
-		tsmm.MaxWt = max
-		tsmm.MinWt = min
-		tsmm.Sex = calf.Sex
-		tsmm.Trait = "FC"
-	*/
 	pricePerPound := getPricePerPound(weight, calf.Sex, "FC")
 	salePrice = weight * pricePerPound
-	//fmt.Println("LOC 1", salePrice, weight, tsmm)
+
 	return salePrice
 }
 

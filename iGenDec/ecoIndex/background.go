@@ -60,33 +60,6 @@ func backgroundingSaleRevenue(calf animal.Animal) (salePrice float64) {
 
 	weight := animal.BackgroundingWtPhenotype(calf)
 
-	min := float64(int(weight/100.) * 100)
-	max := float64(int((weight+100.)/100) * 100)
-
-	if calf.Sex == animal.Steer { // This is set like weaning for now
-		if min >= 800. {
-			min = 800.
-			max = 9999.
-		} else if max <= 400. {
-			max = 400.
-			min = 0.
-		}
-	} else if calf.Sex == animal.Heifer { // This works beacause Sex was set to Cow if she became a replacement
-		if min >= 700. {
-			min = 700.
-			max = 9999.
-		} else if max <= 400. {
-			max = 400.
-			min = 0.
-		}
-	}
-	/*
-		var tsmm TraitSexMinWtMaxWt_t
-		tsmm.MaxWt = max
-		tsmm.MinWt = min
-		tsmm.Sex = calf.Sex
-		tsmm.Trait = "BG"
-	*/
 	pricePerPound := getPricePerPound(weight, calf.Sex, "BG")
 	salePrice = weight * pricePerPound
 

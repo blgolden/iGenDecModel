@@ -74,22 +74,6 @@ func getPricePerPound(wt float64, sex string, trait string) float64 {
 // Calculate backgrounded animals total sale revenue
 func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 
-	weight := calf.CarcassWeight
-
-	min := float64(int(weight/100.) * 100)
-	max := float64(int((weight+100.)/100) * 100)
-
-	if min >= 900. {
-		min = 900.
-		max = 9999.
-	} else if max < 600. {
-		max = 599.
-		min = 0.
-	} else {
-		min = 600
-		max = 900
-	}
-
 	pricePerPound := getPricePerPound(calf.CarcassWeight, calf.Sex, "SC")
 
 	//fmt.Println("LOC 1", salePrice, weight, tsmm)
@@ -141,7 +125,7 @@ func slaughtercattleSaleRevenue(calf animal.Animal) (salePrice float64) {
 	if animal.CarcassPhenotypeFile != nil {
 		fmt.Fprintln(animal.CarcassPhenotypeFile, calf.Id, calf.YearBorn, calf.CarcassWeight, qg, yg, pricePerPound, gridPrice[gridValue], progPremium, calf.BackFatThickness, calf.RibEyArea, calf.MarblingScore)
 	}
-	return weight * (pricePerPound + gridPrice[gridValue] + progPremium)
+	return calf.CarcassWeight * (pricePerPound + gridPrice[gridValue] + progPremium)
 }
 
 // Revenue from sale of fed cattle

@@ -78,30 +78,6 @@ func weaningSaleRevenue(calf animal.Animal) (salePrice float64) {
 		fmt.Println("Calf ", calf.Id, "can't get weaning weight. YearBorn:", calf.YearBorn)
 	}
 
-	min := float64(int(weight/100.) * 100)
-	max := float64(int((weight+100.)/100) * 100)
-
-	if calf.Sex == animal.Steer {
-		if min == 800. {
-			max = 9999.
-		} else if max == 400. {
-			min = 0.
-		}
-	} else if calf.Sex == animal.Heifer {
-		if min == 700. {
-			max = 9999.
-		} else if max == 400. {
-			min = 0.
-		}
-	}
-
-	/*
-		var tsmm TraitSexMinWtMaxWt_t
-		tsmm.MaxWt = max
-		tsmm.MinWt = min
-		tsmm.Sex = calf.Sex
-		tsmm.Trait = "WW"
-	*/
 	pricePerPound := getPricePerPound(weight, calf.Sex, "WW")
 	salePrice = weight * pricePerPound
 
