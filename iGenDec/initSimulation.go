@@ -1,5 +1,6 @@
 // initSimulation
 package main
+
 /*
 Copyright 2021 Bruce Golden and Matt Spangler
 
@@ -234,7 +235,6 @@ func initSimulation() {
 	mvar := varStuff.VarFromMatrix(animal.GeneticIndex("CD", "M"), varStuff.VcMatrix["genetic"])
 	rvar := varStuff.VarFromMatrix(animal.ResidualIndex("CD"), varStuff.VcMatrix["residual"])
 	animal.CDVar = dvar + mvar + rvar
-	return
 }
 
 // Adjust the breed effects for the composition of the current calves
@@ -272,8 +272,6 @@ func adjustBreedEffects() {
 			animal.Breeds[component] = breedEffects
 		}
 	}
-	//fmt.Println("LOC 1", animal.Breeds)
-	return
 }
 
 // Initialize summary talbes
@@ -283,8 +281,6 @@ func initializeTables() {
 	animal.BreedingRecordsYearTable = make(map[animal.HerdYear_t]animal.BreedingRecordsTable_t)
 
 	animal.CowsExposedPerYear = make(map[int]int)
-
-	return
 }
 
 func initSexCodes() {
@@ -313,8 +309,6 @@ func loadTraitAgeEffects() {
 
 		animal.TraitAgeEffects[trait] = tis
 	}
-
-	return
 }
 
 // Read the BreedTraitSexAod factors
@@ -408,7 +402,6 @@ func loadHeterosis() {
 
 		animal.HeterosisValues[a] = h
 	}
-	return
 }
 
 // Do this so we can map the Values
@@ -483,8 +476,6 @@ func loadBreedEffects() {
 
 		//fmt.Println(c, animal.Breeds[c])
 	}
-	//os.Exit(1)
-	return
 }
 
 // Read in the cows herd breed composition from COwHerdBreedComposition: key in master.hjson
@@ -526,9 +517,6 @@ func loadCowHerdBreedComposition() {
 		}
 		animal.FoundationCowHerdBreedCompositionTable = append(animal.FoundationCowHerdBreedCompositionTable, b)
 	}
-
-	//fmt.Println("LOC F", animal.FoundationCowHerdBreedCompositionTable)
-	return
 }
 
 // Read in the bull battery breed composition from BullBatteryBreedComposition: key in master.hjson
@@ -569,8 +557,6 @@ func loadBullBatteryBreedComposition() {
 		}
 		animal.BullBatteryBreedCompositionTable = append(animal.BullBatteryBreedCompositionTable, b)
 	}
-
-	return
 }
 
 // Read in the current calf crop breed composition from CurrentCalvessBreedComposition: key in master.hjson
@@ -612,8 +598,6 @@ func loadCurrentCalvesBreedComposition() {
 		}
 		animal.CurrentCalvesBreedCompositionTable = append(animal.CurrentCalvesBreedCompositionTable, b)
 	}
-
-	return
 }
 
 // Open the output files in master.hjson

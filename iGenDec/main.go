@@ -33,8 +33,6 @@ import (
 
 var version = "beta0.0.4"
 
-var records []animal.Animal
-var herdSize int
 var burninMarker int // Length of the Burnin Records in Records[]
 
 func printTables() {

@@ -83,8 +83,6 @@ func burnInSimulation() {
 	}
 
 	ecoIndex.SetActiveCowList()
-
-	return
 }
 
 //Bump a trait's value by 1 unit
@@ -117,6 +115,4 @@ func bumpComponent(trait animal.BumpComponent_t) {
 		}
 
 	}
-
-	return
 }
