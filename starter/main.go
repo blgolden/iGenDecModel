@@ -425,14 +425,12 @@ func calculateCorrelations() {
 			mevTable[j].correlation = dividend / divisor
 		}
 	}
-
-	return
 }
 
 // Set the header values in the mevTable
 func linkHeaderAndMevTable(xref map[string]Field) {
 	for _, x := range xref {
-		for i, _ := range mevTable {
+		for i := range mevTable {
 			var key string
 			if mevTable[i].trait == "CD" {
 				key = "CE," + mevTable[i].component
@@ -444,7 +442,6 @@ func linkHeaderAndMevTable(xref map[string]Field) {
 			}
 		}
 	}
-	return
 }
 
 // Field describes a field in the CSV file read in from the comp_fn_pair.hjson file
@@ -596,7 +593,7 @@ func main() {
 		if err != nil {
 			logger.LogWriterFatal("Cannot open outputFile")
 		}
-		_, err = f.WriteString("{\n   indexElement:[\n")
+		_, _ = f.WriteString("{\n   indexElement:[\n")
 		for _, co := range mevTable {
 			if co.trait == "CD" {
 				co.trait = "CE"
