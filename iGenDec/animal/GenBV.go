@@ -85,8 +85,6 @@ func GenFoundationBreedComposition(a *Animal) {
 		}
 	}
 	//fmt.Println("LOC B", a.Id, a.BreedComposition)
-
-	return
 }
 
 // Generate the breed composition of the initial bull battery animal from the BullBatteryBreedComposition: key

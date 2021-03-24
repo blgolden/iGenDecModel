@@ -227,8 +227,6 @@ func SimulateBase(Param map[string]interface{}, gvCholesky mat.Cholesky, rvChole
 
 		}
 	}
-
-	return
 }
 
 // Determine the AUM consumption for active cows at end of year

@@ -80,7 +80,6 @@ func MakeFoundationBulls(
 		}
 		h.Bulls = ActiveBulls(&h)
 	}
-	return
 }
 
 // Make a herd of foundation cows
@@ -186,8 +185,7 @@ func MakeFoundationHeifers(
 
 		nHeifers := int(.2 * float32(cowHerdSize))
 
-		var idCounter AnimalId
-		idCounter = AnimalId(len(Records))
+		idCounter := AnimalId(len(Records))
 
 		for i := 0; i < nHeifers; i++ {
 
