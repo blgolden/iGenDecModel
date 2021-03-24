@@ -140,8 +140,6 @@ func Replace(herd *Herd, year int) {
 	} // need to add logging
 
 	herd.Cows = ActiveCows(herd)
-
-	return
 }
 
 // Has this animal reached puberty
@@ -266,8 +264,7 @@ func DumpBreedingRecords() {
 		//fmt.Fprintf(f, "%d - ", thisHerd.Cows[i].Id)
 		if Records[i].BreedComposition != nil {
 			for j := range Records[i].BreedingRecords {
-				var r BreedingRec
-				r = Records[i].BreedingRecords[j]
+				r := Records[i].BreedingRecords[j]
 				if r.Bred {
 					fmt.Fprintln(f, Records[i].Id, r.DateBred, r.Bred, r.Bull, r.CalvingDate, r.YearBred)
 				} else {
@@ -460,7 +457,7 @@ func DetermineAumToWeaning(newCalf *Animal) {
 			days = 30.42
 		}
 		cumDays += days
-		fracMonth = days / 30.42
+
 		wt := bw + q*adg*((cumDays-.5)/2.0)*(1.0+(cumDays-.5)) // Subtract the .5 because the wt is mid-day of weaning day - trust me it works
 
 		var Aumn Aum_t
@@ -562,7 +559,7 @@ func DetermineAumThruBackgrounding(newCalf *Animal) {
 			days = 30.42
 		}
 		cumDays += days
-		fracMonth = days / 30.42
+
 		wt := ww + q*adg*((cumDays-.5)/2.0)*(1.0+(cumDays-.5)) // Subtract the .5 because the wt is mid-day of weaning day - trust me it works
 
 		var Aumn Aum_t
@@ -608,9 +605,6 @@ func Calve(herd *Herd, year int, gvCholesky mat.Cholesky, rvCholesky mat.Cholesk
 
 		}
 	}
-
-	return
-
 }
 
 // Did the cow or calf die in calving?
@@ -633,8 +627,4 @@ func diedCalving(cow *Animal, calf *Animal) {
 			//fmt.Println("LOC 6", calf.Id, calf.Dam, calf.Dead, calf.YearBorn)
 		}
 	}
-
-	//fmt.Println("LOC CD", cd, prob, Herds[Records[calf.Dam].HerdName].CalvingDifficultyDistribution.Mu, Herds[Records[calf.Dam].HerdName].CalvingDifficultyDistribution.Sigma)
-
-	return
 }
