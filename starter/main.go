@@ -53,7 +53,7 @@ import (
 var debug bool = false // write a trait's sample values to Samples file for debugging.
 var debugTrait string = "base"
 
-var version string = "beta0.0.3"
+var version string = "beta0.0.4"
 var modelParam *string
 var indexParam *string
 var results []float64
@@ -395,7 +395,11 @@ func calculateCorrelations() {
 		for _, f := range mevTable {
 			if f.headerName != "" {
 				e, _ := strconv.ParseFloat(c[f.headerName], 64)
-				s += e * f.mev
+				if f.trait == "CD" {
+					s += e * f.mev * -1.
+				} else {
+					s += e * f.mev
+				}
 			}
 		}
 		score = append(score, s)
@@ -598,7 +602,7 @@ func main() {
 			if co.trait == "CD" {
 				co.trait = "CE"
 				co.mev = co.mev * -1.0
-				co.correlation = co.correlation * -1.0
+				//co.correlation = co.correlation * -1.0
 			}
 			f.WriteString("{\n      trait: " + co.trait + "\n")
 			f.WriteString("      component: " + co.component + "\n")
