@@ -24,6 +24,7 @@ package animal
 import (
 	"fmt"
 	//"os"
+	"math"
 	"strings"
 
 	"github.com/blgolden/iGenDecModel/iGenDec/logger"
@@ -351,7 +352,53 @@ func WeaningWtPhenotype(thisAnimal Animal) (float64, bool) {
 	return pheno, true
 }
 
+func withTolerane(a, b float64) bool {
+	tolerance := 0.001
+	if diff := math.Abs(a - b); diff < tolerance {
+		return true
+	}
+	return false
+
+}
+
+// Convert a stayability value to a conception rate in 21 days value
+// Assumes the stayability is for a 60 d breeding season - really 63 but who's counting
+func Stay2Concept21days(s float64) float64 {
+	// binary search the expression: s = c^3 - 3c^2 + 3c
+	if s <= 0.0 {
+		return 0.0
+	}
+	if s >= 1.0 {
+		return 1.0
+	}
+
+	var c, low, high float64
+	low = 0.0
+	high = 1.0
+
+	for low <= high {
+		c = (low + high) / 2.0
+
+		thiss := math.Pow(c, 3.0) - 3*math.Pow(c, 2.0) + 3*c
+		if withTolerane(s, thiss) {
+			return c
+		}
+
+		if thiss > s {
+			high = c
+		} else {
+			low = c
+		}
+
+	}
+
+	return c
+
+}
+
 // Calculate the stayability phenotype at a particular day - e.g. at breeding
+// This is 6 yoa conception rate adjusted to a conception rate at a particular
+// age.
 func StayAtAgePhenotype(thisAnimal Animal, today Date) (pheno float64) {
 
 	geneticDirectEffect := GeneticEffect(GeneticIndex("STAY", "D"), thisAnimal)
@@ -367,7 +414,7 @@ func StayAtAgePhenotype(thisAnimal Animal, today Date) (pheno float64) {
 		heterosisEffects = 0.0
 	}
 
-	sexAgeOfDamEffects := SexAgeOfDamEffect("STAY", thisAnimal) // Only sex effect if not AOD effect
+	//sexAgeOfDamEffects := SexAgeOfDamEffect("STAY", thisAnimal) // Only sex effect if not AOD effect
 
 	daysOfAge := today - thisAnimal.BirthDate
 
@@ -376,13 +423,15 @@ func StayAtAgePhenotype(thisAnimal Animal, today Date) (pheno float64) {
 	residual := Rng.NormFloat64() * ResidualStayStdDev // Simulated as uncorrelated to other residuals
 
 	pheno = TraitMean["STAY"] +
-		breedEffects +
-		heterosisEffects +
-		sexAgeOfDamEffects +
+		//breedEffects +
+		//heterosisEffects +
+		//sexAgeOfDamEffects +
 		ageEffect +
 		geneticDirectEffect +
 		//permEnvEffect +
 		residual
+
+	pheno = pheno + pheno*(1.0*heterosisEffects) // This is a multiplicative effect because this is a probability
 
 	if StayPhenotypeFilePointer != nil {
 		fmt.Fprintln(StayPhenotypeFilePointer,
@@ -392,7 +441,7 @@ func StayAtAgePhenotype(thisAnimal Animal, today Date) (pheno float64) {
 			TraitMean["STAY"],   // 4
 			breedEffects,        // 5
 			heterosisEffects,    // 6
-			sexAgeOfDamEffects,  // 7
+			//sexAgeOfDamEffects,  // 7
 			ageEffect,           // 8
 			daysOfAge,           // 9
 			geneticDirectEffect, // 10

@@ -31,7 +31,7 @@ import (
 	"github.com/blgolden/iGenDecModel/iGenDec/varStuff"
 )
 
-var version = "beta0.0.5a"
+var version = "beta0.0.7"
 
 var burninMarker int // Length of the Burnin Records in Records[]
 

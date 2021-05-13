@@ -198,6 +198,7 @@ func initSimulation() {
 		thisHerd.BreedingSeasonLen = animal.Date(d)
 		f, _ := strconv.ParseFloat(strings.TrimSpace(s[4]), 64)
 		thisHerd.CowConceptionRate = conceptionPerCycle(int64(thisHerd.BreedingSeasonLen), f)
+		thisHerd.Mean3CycleRate = seasonConceptionRate(3.0, thisHerd.CowConceptionRate) // 3.0 cycles because that is what stay is based on
 		f, _ = strconv.ParseFloat(strings.TrimSpace(s[5]), 64)
 		thisHerd.InitialCalvingDeathLessRate = f
 
@@ -722,7 +723,7 @@ func loadParam() {
 }
 
 // Find the conception rate per cycle using
-// a lookup table
+// a lookup table and return
 func conceptionPerCycle(l int64, c float64) float64 {
 
 	baseCycles := l / 21

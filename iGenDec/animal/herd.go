@@ -54,11 +54,13 @@ var CurrentCalvesBreedCompositionTable []BreedComposition_t
 type Herd struct { // There can be more than one
 
 	// These are the parameters read from herds: in the hjson
-	HerdName                      string        // For example "Spring" or "Fall"
-	NumberCows                    int           // Target number of cows in this herd
-	StartBreeding                 Date          // Date starting to breed
-	BreedingSeasonLen             Date          // Length of breeding season in days
-	CowConceptionRate             float64       // Conception rate in 60 d breeding season
+	HerdName          string  // For example "Spring" or "Fall"
+	NumberCows        int     // Target number of cows in this herd
+	StartBreeding     Date    // Date starting to breed
+	BreedingSeasonLen Date    // Length of breeding season in days
+	CowConceptionRate float64 // Average Conception rate per 21 d cycle
+	Mean3CycleRate    float64 // stay is based on 3 cycles of exposure
+
 	CalvingDifficultyDistribution distuv.Normal // Unadjusted phenotype probability threshold for breeding set in MakeFoundationHeifers()
 	InitialCalvingDeathLessRate   float64       // Initial calving difficulty death loss rate
 

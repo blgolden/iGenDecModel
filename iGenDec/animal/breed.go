@@ -40,7 +40,7 @@ func min(x, y int) int {
 	return y
 }
 func randRange(min, max int) int {
-	if max-min == 0 {
+	if max-min <= 0 {
 		return min
 	}
 	return rand.Intn(max-min) + min
@@ -186,6 +186,7 @@ func Breed(herd *Herd, year int) {
 		for cycle := 1; cycle <= nCycles; cycle++ { // cycle is estrus
 
 			clen := min(int(herd.BreedingSeasonLen)-(cycle-1)*21, 21)
+			propClen := float64(clen) / 21.0
 
 			breddate := Date((cycle-1)*21+randRange(1, clen)) + herd.StartBreeding
 
@@ -194,16 +195,21 @@ func Breed(herd *Herd, year int) {
 			isHeifer := false
 			//var geneticDirectEffect float64
 
+			// Do this here because the age effects were impactful
 			if thisAgeAtBreedingStart < 365+365/2 { // Yearling heifer
-				p = HeiferPregnancyPhenotype(*herd.Cows[i], Date((year-1)*365)+breddate) + herd.CowConceptionRate
+				p = HeiferPregnancyPhenotype(*herd.Cows[i], Date((year-1)*365)+breddate) + herd.Mean3CycleRate*propClen
 				isHeifer = true
 			} else { // This is a cow
-				p = StayAtAgePhenotype(*herd.Cows[i], Date((year-1)*365)+breddate) + herd.CowConceptionRate
+				stay := StayAtAgePhenotype(*herd.Cows[i], Date((year-1)*365)+breddate) + herd.Mean3CycleRate
+				p = Stay2Concept21days(stay) * propClen
+				//fmt.Println("LOC_2", stay, p, herd.Mean3CycleRate, herd.CowConceptionRate, propClen, cycle, herd.Cows[i].Id)
+				//p += herd.CowConceptionRate
 			}
 
-			conceive := rand.Float64()
+			//conceive := rand.Float64()
 
-			if p > conceive {
+			//if p > conceive {
+			if p > herd.CowConceptionRate {
 				/*if isHeifer {
 					fmt.Println("LOC CO", herd.Cows[i].Id, year, p, concieve, cycle, cycp[cycle-1], isHeifer)
 				}*/
