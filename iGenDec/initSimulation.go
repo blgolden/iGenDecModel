@@ -726,6 +726,10 @@ func loadParam() {
 // a lookup table and return
 func conceptionPerCycle(l int64, c float64) float64 {
 
+	if c >= 1.0 {
+		c = .99999
+	}
+
 	baseCycles := l / 21
 
 	m := l % 21
